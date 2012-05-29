@@ -5,7 +5,7 @@ import re, time
 PLUGIN_TITLE		= "TOU.TV"
 PLUGIN_PREFIX   	= "/video/TOU.TV"
 PLUGIN_URL			= "http://www.tou.tv"
-PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid='
+PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 
 # Plugin resources
 PLUGIN_ICON_DEFAULT	= "icon-default.png"
@@ -178,7 +178,7 @@ def Season(sender, show_title, season):
 
 def Video(sender, video_url):
 	video_data = HTTP.Request(PLUGIN_URL + video_url).content
-	video_data = HTTP.Request(PLUGIN_CONTENT_URL + re.compile("toutv.releaseUrl='(.+?)'").findall(video_data)[0] + '&format=SMIL').content
+	video_data = HTTP.Request(PLUGIN_CONTENT_URL % re.compile("var episodeId = '(.+?)'").findall(video_data)[0]).content
 
 	try:
 		player_url = "rtmp:" + re.compile('<ref src="rtmp:(.+?)"').findall(video_data)[0]
