@@ -186,7 +186,8 @@ def Season(show_title, season, season_name):
 		except:
 			ep_index = None
 		if title.startswith(u"Épisode"):
-			title = str(title).partition(':')[2]
+			if title.split(':')[1] != '':
+				title = str(title).partition(':')[2]
 		date = TranslateDate(episode["date"])
 		summary = episode["summary"]
 		thumb = episode["thumb"]
