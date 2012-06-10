@@ -1,15 +1,23 @@
 # -*- coding: latin-1 -*-
-import re, time
+RE_SUMMARY = Regex('"Description":"(.+?)"')
+RE_THUMB = Regex('<meta property="og:image" content="(.+?)"')
+RE_SEASON = Regex('Saison ([0-9]+)')
+RE_EP_NUM = Regex('Épisode ([0-9]+)')
 
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
 PLUGIN_PREFIX   	= "/video/TOU.TV"
-PLUGIN_URL			= "http://www.tou.tv"
+PLUGIN_URL		= "http://www.tou.tv"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 
 # Plugin resources
 PLUGIN_ICON_DEFAULT	= "icon-default.png"
 PLUGIN_ARTWORK		= "art-default.jpg"
+
+MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
+	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
+	{"french" : "juillet", "english": "July"},{"french" : u"août", "english": "August"},{"french" : "septembre", "english": "September"},
+	{"french" : "octobre", "english": "October"},{"french" : "novembre", "english": "November"},{"french" : u"décembre", "english": "December"}]
 
 ####################################################################################################
 
@@ -17,14 +25,13 @@ def Start():
 	Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, PLUGIN_TITLE, PLUGIN_ICON_DEFAULT, PLUGIN_ARTWORK)
 	Plugin.AddViewGroup("InfoList", viewMode = "InfoList", mediaType = "items")
 	
-	# Set the default MediaContainer attributes
-	MediaContainer.title1    = PLUGIN_TITLE
-	MediaContainer.viewGroup = "InfoList"
-	MediaContainer.art       = R(PLUGIN_ARTWORK)
+	# Set the default ObjectContainer attributes
+	ObjectContainer.title1    = PLUGIN_TITLE
+	ObjectContainer.view_group = "InfoList"
+	ObjectContainer.art       = R(PLUGIN_ARTWORK)
 	
-	# Default icons for DirectoryItem and WebVideoItem in case there isn't an image
-	DirectoryItem.thumb = R(PLUGIN_ICON_DEFAULT)
-	WebVideoItem.thumb  = R(PLUGIN_ICON_DEFAULT)
+	# Default icons for DirectoryObject in case there isn't an image
+	DirectoryObject.thumb = R(PLUGIN_ICON_DEFAULT)
 	
 	# Set the default cache time
 	HTTP.CacheTime = 1800
@@ -33,7 +40,7 @@ def Start():
 ###################################################################################################
 
 def MainMenu():
-	dir = MediaContainer()
+	oc = ObjectContainer()
 
 	shows = []
 	raw_data = HTTP.Request(PLUGIN_URL + "/repertoire").content
@@ -55,25 +62,25 @@ def MainMenu():
 	
 	shows.sort(lambda x, y: cmp(x["title"].lower(), y["title"].lower()))
 	
-	dir.Append(Function(DirectoryItem(AllShows, title = "Toutes les Ã©missions"), shows = shows))
-	dir.Append(Function(DirectoryItem(BrowseByGenre, title = "Parcourir par genre"), shows = shows))
+	oc.add(DirectoryObject(key=Callback(AllShows, shows=shows), title=u"Toutes les émissions"))
+	oc.add(DirectoryObject(key=Callback(BrowseByGenre, shows=shows), title="Parcourir par genre"))
 	
-	return dir
+	return oc
 
 ####################################################################################################
 
-def AllShows(sender, shows):
-	dir = MediaContainer(title2 = sender.itemTitle)
+def AllShows(shows):
+	oc = ObjectContainer(title2 = u"Toutes les émissions")
 	
 	for show in shows:
-		dir.Append(Function(DirectoryItem(Show, title = show["title"], subtitle = show["genre"]), show = show))
+		oc.add(DirectoryObject(key=Callback(Show, show=show, title=show["title"]), title = show["title"]))
 	
-	return dir
+	return oc
 
 ####################################################################################################
 
-def BrowseByGenre(sender, shows):
-	dir = MediaContainer(title2 = sender.itemTitle)
+def BrowseByGenre(shows):
+	oc = ObjectContainer(title2 = "Parcourir par genre")
 	
 	genres = {}
 	
@@ -86,24 +93,24 @@ def BrowseByGenre(sender, shows):
 	keys.sort(lambda x, y: cmp(x.lower(), y.lower()))
 	
 	for key in keys:
-		dir.Append(Function(DirectoryItem(Genre, title = key), genre = genres[key]))
+		oc.add(DirectoryObject(key=Callback(Genre, genre=genres[key], title=key), title=key))
 	
-	return dir
+	return oc
 
 ####################################################################################################
 
-def Genre(sender, genre):
-	dir = MediaContainer(title2 = sender.itemTitle)
+def Genre(genre, title):
+	oc = ObjectContainer(title2 = title)
 	
 	for show in genre:
-		dir.Append(Function(DirectoryItem(Show, title = show["title"], subtitle = show["genre"]), show = show))
+		oc.add(DirectoryObject(key=Callback(Show, show=show, title=show["title"]), title = show["title"]))
 	
-	return dir
+	return oc
 
 ####################################################################################################
 
-def Show(sender, show):
-	dir = MediaContainer(title2 = sender.itemTitle)
+def Show(show, title):
+	oc = ObjectContainer(title2 = title)
 	
 	try:
 		data     = HTML.ElementFromURL(PLUGIN_URL + show["url"])
@@ -111,20 +118,20 @@ def Show(sender, show):
 		
 		if show["numseasons"] == 0:
 			movie_title   = data.xpath("//h1[@class = 'emission']")[0].text
-			movie_date    = data.xpath("//div[@class = 'specs']/p[@id = 'MainContent_ctl00_PDateEpisode']/strong")[0].text
-			movie_summary = re.compile('"Description":"(.+?)"').findall(raw_data)[0]
-
+			movie_date    = TranslateDate(data.xpath("//div[@class = 'specs']/p[@id = 'MainContent_ctl00_PDateEpisode']/strong")[0].text)
+			movie_summary = RE_SUMMARY.findall(raw_data)[0]
+			movie_url = PLUGIN_URL + show['url']
 			try:
-				movie_thumb = re.compile('<meta property="og:image" content="(.+?)"').findall(raw_data)[0]
+				movie_thumb = RE_THUMB.findall(raw_data)[0]
 			except:
 				movie_thumb = None
-				
-			dir.Append(Function(WebVideoItem(Video, title = movie_title, subtitle = movie_date, summary = movie_summary, thumb = Function(Thumb, url = movie_thumb)), video_url = show["url"]))
+			
+			oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb, fallback=PLUGIN_ICON_DEFAULT)))
 		else:
 			season_summary = data.xpath("//div[@id = 'detailsemission']/p")[0].text
 			
 			try:
-				season_thumb = re.compile('<meta property="og:image" content="(.+?)"').findall(raw_data)[0]
+				season_thumb = RE_THUMB.findall(raw_data)[0]
 			except:
 				season_thumb = None
 				pass
@@ -151,56 +158,49 @@ def Show(sender, show):
 			season_names.sort(lambda x, y: cmp(x.lower(), y.lower()))
 			
 			for season_name in season_names:
-				dir.Append(Function(DirectoryItem(Season, title = season_name, summary = season_summary, thumb = Function(Thumb, url = season_thumb)), show_title = show["title"], season = show["seasons"][season_name])) 
+				oc.add(DirectoryObject(key=Callback(Season, show_title=show["title"], season=show["seasons"][season_name], season_name=season_name), title=season_name, summary=season_summary, thumb=Resource.ContentsOfURLWithFallback(url=season_thumb, fallback=PLUGIN_ICON_DEFAULT)))
 	except:
-		dir.header  = "Emission vide"
-		dir.message = "Cette Ã©mission n'a aucun contenu."
+		return ObjectContainer(header="Emission vide", message=u"Cette émission n'a aucun contenu.")
 		
-	return dir
+	return oc
 
 ####################################################################################################
 
-def Season(sender, show_title, season):
-	dir = MediaContainer(title1 = show_title, title2 = sender.itemTitle)
+def Season(show_title, season, season_name):
+	oc = ObjectContainer(title1 = show_title, title2 = season_name)
 	
 	season.sort(lambda x, y: cmp(x["url"], y["url"]))
 	
-	for episode in season:
-		dir.Append(Function(WebVideoItem(Video, title = episode["name"], subtitle = episode["date"], thumb = Function(Thumb, url = episode["thumb"]), summary = episode["summary"]), video_url = episode["url"]))
-	
-	if len(dir) == 0:
-		dir.header  = "Saison vide"
-		dir.message = "Cette saison n'a aucun contenu."
-	
-	return dir
-
-####################################################################################################
-
-def Video(sender, video_url):
-	video_data = HTTP.Request(PLUGIN_URL + video_url).content
-	video_data = HTTP.Request(PLUGIN_CONTENT_URL % re.compile("var episodeId = '(.+?)'").findall(video_data)[0]).content
-
 	try:
-		player_url = "rtmp:" + re.compile('<ref src="rtmp:(.+?)"').findall(video_data)[0]
-		clip_url   = "mp4:" + re.compile('mp4:(.+?)"').findall(video_data)[0]
-		width      = re.compile('width="(.+?)"').findall(video_data)[0]
-		height     = re.compile('height="(.+?)"').findall(video_data)[0]
+		season_num = int(RE_SEASON.search(season_name).group(1))
 	except:
-		player_url = None
-		clip_url   = None
-		width      = 0
-		height     = 0
+		season_num = None
 	
-	return Redirect(RTMPVideoItem(player_url, clip = clip_url, width = width, height = height))
+	for episode in season:
+		url=episode['url']
+		if not url.startswith(PLUGIN_URL):
+			url = PLUGIN_URL + url
+		title=episode["name"]
+		try:
+			ep_index = int(RE_EP_NUM.search(title).group(1))
+		except:
+			ep_index = None
+		if title.startswith(u"Épisode"):
+			if title.split(':')[1] != '':
+				title = str(title).partition(':')[2]
+		date = TranslateDate(episode["date"])
+		summary = episode["summary"]
+		thumb = episode["thumb"]
+		oc.add(EpisodeObject(url=url, title=title, show=show_title, index=ep_index, season=season_num, originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=PLUGIN_ICON_DEFAULT)))
+	
+	if len(oc) == 0:
+		return ObjectContainer(header="Saison vide", message="Cette saison n'a aucun contenu.")
+	
+	return oc
 
 ####################################################################################################
 
-def Thumb(url):
-	if url != None:
-		try:
-			image = HTTP.Request(url, cacheTime=CACHE_1MONTH).content
-			return DataObject(image, 'image/jpeg')
-		except:
-			pass
-
-	return Redirect(R(PLUGIN_ICON_DEFAULT))
+def TranslateDate(date):
+	for month in MONTHS:
+		date = date.replace(month['french'], month['english'])
+	return Datetime.ParseDate(date).date()
