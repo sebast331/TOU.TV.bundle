@@ -1,14 +1,18 @@
 # -*- coding: latin-1 -*-
-RE_SUMMARY = Regex('"Description":"(.+?)"')
-RE_THUMB = Regex('<meta property="og:image" content="(.+?)"')
-RE_SEASON = Regex('Saison ([0-9]+)')
-RE_EP_NUM = Regex('Épisode ([0-9]+)')
+RE_SHOWS	= Regex('var groups = (\[\[{.+}\]\]);', Regex.DOTALL)
+RE_GENRES	= Regex('var genres = (\[.+?\]);', Regex.DOTALL)
+RE_COUNTRIES	= Regex('var countries = (\[.+?\]);', Regex.DOTALL)
+RE_SUMMARY 	= Regex('"Description":"(.+?)"')
+RE_THUMB 	= Regex('<meta property="og:image" content="(.+?)"')
+RE_SEASON 	= Regex('Saison ([0-9]+)')
+RE_EP_NUM 	= Regex('Épisode ([0-9]+)')
 
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
 PLUGIN_PREFIX   	= "/video/TOU.TV"
-PLUGIN_URL		= "http://www.tou.tv"
+PLUGIN_URL		= "http://www.tou.tv/"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
+SEASON_INFO_URL		= 'http://www.tou.tv/Emisode/GetVignetteSeason?emissionId=%s&season=%s'
 
 # Plugin resources
 PLUGIN_ICON_DEFAULT	= "icon-default.png"
@@ -42,156 +46,178 @@ def Start():
 def MainMenu():
 	oc = ObjectContainer()
 
-	shows = []
-	raw_data = HTTP.Request(PLUGIN_URL + "/repertoire").content
-	raw_data = raw_data.replace("style=\"display:none;\"/>", "style=\"display:none;\">")
-	data     = HTML.ElementFromString(raw_data)
-	
-	for c in data.xpath("//h1[@class = 'titreemission']/.."):
-		show = {}
-		show["title"]      = c.find("h1").text
-		show["genre"]      = c.xpath("span[@class = 'genre']")[0].text
-		show["url"]        = c.get("href")
-		
-		try:
-			show["numseasons"] = int(c.xpath("span[@class = 'nbsaison']")[0].text)
-		except:
-			show["numseasons"] = 0
-		
-		shows.append(show)
-	
-	shows.sort(lambda x, y: cmp(x["title"].lower(), y["title"].lower()))
-	
-	oc.add(DirectoryObject(key=Callback(AllShows, shows=shows), title=u"Toutes les émissions"))
-	oc.add(DirectoryObject(key=Callback(BrowseByGenre, shows=shows), title="Parcourir par genre"))
+	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
+	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
+	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
+	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
 	
 	return oc
 
 ####################################################################################################
 
-def AllShows(shows):
+def GetShowList():
+	
+	raw_data = HTTP.Request(PLUGIN_URL + "repertoire").content
+	show_data = RE_SHOWS.search(raw_data).group(1)
+	shows = JSON.ObjectFromString(show_data)
+	
+	return shows
+
+####################################################################################################
+
+def AllShows():
 	oc = ObjectContainer(title2 = u"Toutes les émissions")
 	
-	for show in shows:
-		oc.add(DirectoryObject(key=Callback(Show, show=show, title=show["title"]), title = show["title"]))
+	shows = GetShowList()
+	for group in shows:
+		for show in group:
+			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
 
 ####################################################################################################
 
-def BrowseByGenre(shows):
+def BrowseByGenre():
 	oc = ObjectContainer(title2 = "Parcourir par genre")
 	
-	genres = {}
+	raw_data = HTTP.Request(PLUGIN_URL + "/repertoire").content
+	genres_data = RE_GENRES.search(raw_data).group(1)
+	genres = JSON.ObjectFromString(genres_data)
 	
-	for show in shows:
-		if show["genre"] not in genres:
-			genres[show["genre"]] = []
-		genres[show["genre"]].append(show)
-	
-	keys = genres.keys()
-	keys.sort(lambda x, y: cmp(x.lower(), y.lower()))
-	
-	for key in keys:
-		oc.add(DirectoryObject(key=Callback(Genre, genre=genres[key], title=key), title=key))
+	for genre in genres:
+		oc.add(DirectoryObject(key=Callback(Genre, genre=genre), title=genre['Title']))
 	
 	return oc
 
 ####################################################################################################
 
-def Genre(genre, title):
-	oc = ObjectContainer(title2 = title)
-	
-	for show in genre:
-		oc.add(DirectoryObject(key=Callback(Show, show=show, title=show["title"]), title = show["title"]))
+def Genre(genre):
+	oc = ObjectContainer(title2 = genre['Title'])
+	shows = GetShowList()
+	for group in shows:
+		for show in group:
+			if show['GenreId'] == genre['Id']:
+				oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
 	
 	return oc
 
 ####################################################################################################
 
-def Show(show, title):
-	oc = ObjectContainer(title2 = title)
+def BrowseByCountry():
+	oc = ObjectContainer(title2 = "Parcourir par pays")
 	
-	try:
-		data     = HTML.ElementFromURL(PLUGIN_URL + show["url"])
-		raw_data = HTTP.Request(PLUGIN_URL + show["url"]).content
+	raw_data = HTTP.Request(PLUGIN_URL + "/repertoire").content
+	countries_data = RE_COUNTRIES.search(raw_data).group(1)
+	countries = JSON.ObjectFromString(countries_data)
+	
+	for country in countries:
+		oc.add(DirectoryObject(key=Callback(Country, country=country), title=country['CountryValue']))
+	
+	return oc
+
+####################################################################################################
+
+def Country(country):
+	oc = ObjectContainer(title2 = country['CountryValue'])
+	shows = GetShowList()
+	for group in shows:
+		for show in group:
+			if show['CssCountry'] == country['CountryKey']:
+				oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
+	
+	return oc
+
+####################################################################################################
+
+def BrowseAlphabetically():
+	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabétique")
+	
+	for letters in ["0-9", "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWXYZ"]:
+		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
+	
+	return oc
+
+####################################################################################################
+
+def Letters(letters):
+	oc = ObjectContainer(title2 = letters)
+	shows = GetShowList()
+	if letters == "0-9":
+		letters = "0123456789"
+	index=0
+	while index < len(letters):
+		letter = letters[index]
+		for group in shows:
+			for show in group:
+				if show['GroupeId'] == letter:
+					oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
+		index = index + 1
+	
+	return oc
+
+####################################################################################################
+
+def Show(show):
+	oc = ObjectContainer(title2 = show['Title'])
+	
+	#try:
 		
-		if show["numseasons"] == 0:
-			movie_title   = data.xpath("//h1[@class = 'emission']")[0].text
-			movie_date    = TranslateDate(data.xpath("//div[@class = 'specs']/p[@id = 'MainContent_ctl00_PDateEpisode']/strong")[0].text)
-			movie_summary = RE_SUMMARY.findall(raw_data)[0]
-			movie_url = PLUGIN_URL + show['url']
-			try:
-				movie_thumb = RE_THUMB.findall(raw_data)[0]
-			except:
-				movie_thumb = None
-			
-			oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb, fallback=PLUGIN_ICON_DEFAULT)))
-		else:
-			season_summary = data.xpath("//div[@id = 'detailsemission']/p")[0].text
-			
-			try:
-				season_thumb = RE_THUMB.findall(raw_data)[0]
-			except:
-				season_thumb = None
-				pass
-			
-			show["seasons"] = {}
-			
-			for c in data.xpath("//div[@class = 'blocepisodeemission']"):
-				floatimg      = c.xpath("div[@class = 'floatimg']")[0]
-				floatinfos    = c.xpath("div[@class = 'floatinfos']")[0]
-				
-				season_name = floatinfos.xpath("p")[0].text
-				if season_name not in show["seasons"]:
-					show["seasons"][season_name] = []
-				
-				episode = {}
-				episode["name"]     = floatimg.find("a").find("img").get("alt")
-				episode["url"]      = floatimg.find("a").get("href")
-				episode["thumb"]    = floatimg.find("a").find("img").get("src")
-				episode["date"]     = floatinfos.find("div").find("strong").text
-				episode["summary"]  = floatinfos.xpath("p")[1].text
-				show["seasons"][season_name].append(episode)
-			
-			season_names = show["seasons"].keys()
-			season_names.sort(lambda x, y: cmp(x.lower(), y.lower()))
-			
-			for season_name in season_names:
-				oc.add(DirectoryObject(key=Callback(Season, show_title=show["title"], season=show["seasons"][season_name], season_name=season_name), title=season_name, summary=season_summary, thumb=Resource.ContentsOfURLWithFallback(url=season_thumb, fallback=PLUGIN_ICON_DEFAULT)))
-	except:
-		return ObjectContainer(header="Emission vide", message=u"Cette émission n'a aucun contenu.")
-		
-	return oc
-
-####################################################################################################
-
-def Season(show_title, season, season_name):
-	oc = ObjectContainer(title1 = show_title, title2 = season_name)
+	data     = HTML.ElementFromURL(PLUGIN_URL + show["Url"])
+	raw_data = HTTP.Request(PLUGIN_URL + show["Url"]).content
 	
-	season.sort(lambda x, y: cmp(x["url"], y["url"]))
-	
-	try:
-		season_num = int(RE_SEASON.search(season_name).group(1))
-	except:
-		season_num = None
-	
-	for episode in season:
-		url=episode['url']
-		if not url.startswith(PLUGIN_URL):
-			url = PLUGIN_URL + url
-		title=episode["name"]
+	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
+		movie_title   = show['Title']
+		movie_date    = Datetime.ParseDate(data.xpath('//meta[@name="dc.date.created"]')[0].get('content').split('|')[0]).date()
+		movie_summary = data.xpath('//meta[@property="og:description"]')[0].get('content')
+		movie_url = PLUGIN_URL + show['Url']
+		movie_duration = int(data.xpath('//meta[@property="video:duration"]')[0].get('content'))*1000
 		try:
-			ep_index = int(RE_EP_NUM.search(title).group(1))
+			movie_thumb = data.xpath('//meta[@property="og:image"]')[0].get('content').replace('_L.jpeg','_A.jpeg')
+		except:
+			movie_thumb = None
+			
+		oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb, fallback=PLUGIN_ICON_DEFAULT)))
+	else:
+		showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
+			
+		try:
+			season_thumb = RE_THUMB.findall(raw_data)[0]
+		except:
+			season_thumb = None
+			pass
+		
+		index = 0
+		for season in show['EpisodeCountBySeason']:
+			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=season['SeasonNumber'], thumb=Resource.ContentsOfURLWithFallback(url=season_thumb, fallback=PLUGIN_ICON_DEFAULT)))
+			index = index + 1
+	#except:
+	#	return ObjectContainer(header="Emission vide", message=u"Cette émission n'a aucun contenu.")
+		
+	return oc
+
+####################################################################################################
+
+def Season(show, showId, index):
+	oc = ObjectContainer(title1 = show["Title"], title2 = show['EpisodeCountBySeason'][index]['SeasonNumber'])
+
+	episodes = JSON.ObjectFromURL(SEASON_INFO_URL % (showId, show['EpisodeCountBySeason'][index]['SeasonNumber']))
+	for episode in episodes[0]['EpisodeVignetteList']:
+		url=episode['DetailsViewUrl']
+		if not url.startswith(PLUGIN_URL):
+			url = PLUGIN_URL + url.lstrip('/')
+		title=episode['EpisodeUrlEntity']['episode']
+		try:
+			ep_index = int(RE_EP_NUM.search(episode['DetailsViewSaison']).group(1))
 		except:
 			ep_index = None
 		if title.startswith(u"Épisode"):
 			if title.partition(':')[2] != '':
-				title = title.partition(':')[2].strip()
-		date = TranslateDate(episode["date"])
-		summary = episode["summary"]
-		thumb = episode["thumb"]
-		oc.add(EpisodeObject(url=url, title=title, show=show_title, index=ep_index, season=season_num, originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=PLUGIN_ICON_DEFAULT)))
+				title = title.partition(':')[2].strip()	
+		date = TranslateDate(episode['DetailsViewDateEpisode'])
+		summary = episode['DetailsFullDescription']
+		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
+		duration = Datetime.MillisecondsFromString(episode['DetailsViewDureeEpisode'])
+		oc.add(EpisodeObject(url=url, title=title, show=show['Title'], index=ep_index, season=show['EpisodeCountBySeason'][index]['SeasonNumber'], originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=PLUGIN_ICON_DEFAULT)))
 	
 	if len(oc) == 0:
 		return ObjectContainer(header="Saison vide", message="Cette saison n'a aucun contenu.")
