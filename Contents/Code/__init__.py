@@ -97,7 +97,7 @@ def Genre(genre):
 	for group in shows:
 		for show in group:
 			if show['GenreId'] == genre['Id']:
-				oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
+				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
 
@@ -123,7 +123,7 @@ def Country(country):
 	for group in shows:
 		for show in group:
 			if show['CssCountry'] == country['CountryKey']:
-				oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
+				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
 
@@ -150,7 +150,7 @@ def Letters(letters):
 		for group in shows:
 			for show in group:
 				if show['GroupeId'] == letter:
-					oc.add(DirectoryObject(key=Callback(Show), title = show["Title"]))
+					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 		index = index + 1
 	
 	return oc
