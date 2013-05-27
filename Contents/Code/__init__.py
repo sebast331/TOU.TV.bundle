@@ -14,10 +14,6 @@ PLUGIN_URL		= "http://www.tou.tv/"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 SEASON_INFO_URL		= 'http://www.tou.tv/Emisode/GetVignetteSeason?emissionId=%s&season=%s'
 
-# Plugin resources
-PLUGIN_ICON_DEFAULT	= "icon-default.png"
-PLUGIN_ARTWORK		= "art-default.jpg"
-
 MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
 	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
 	{"french" : "juillet", "english": "July"},{"french" : u"août", "english": "August"},{"french" : "septembre", "english": "September"},
@@ -26,20 +22,16 @@ MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "
 ####################################################################################################
 
 def Start():
-	Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, PLUGIN_TITLE, PLUGIN_ICON_DEFAULT, PLUGIN_ARTWORK)
+	Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, PLUGIN_TITLE)
 	Plugin.AddViewGroup("InfoList", viewMode = "InfoList", mediaType = "items")
 	
 	# Set the default ObjectContainer attributes
 	ObjectContainer.title1    = PLUGIN_TITLE
 	ObjectContainer.view_group = "InfoList"
-	ObjectContainer.art       = R(PLUGIN_ARTWORK)
-	
-	# Default icons for DirectoryObject in case there isn't an image
-	DirectoryObject.thumb = R(PLUGIN_ICON_DEFAULT)
 	
 	# Set the default cache time
 	HTTP.CacheTime = 1800
-	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12'
+	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0'
 
 ###################################################################################################
 
@@ -176,7 +168,7 @@ def Show(show):
 		except:
 			movie_thumb = None
 			
-		oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb, fallback=PLUGIN_ICON_DEFAULT)))
+		oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb)))
 	else:
 		showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
 			
@@ -188,7 +180,7 @@ def Show(show):
 		
 		index = 0
 		for season in show['EpisodeCountBySeason']:
-			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=season['SeasonNumber'], thumb=Resource.ContentsOfURLWithFallback(url=season_thumb, fallback=PLUGIN_ICON_DEFAULT)))
+			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=season['SeasonNumber'], thumb=Resource.ContentsOfURLWithFallback(url=season_thumb)))
 			index = index + 1
 	#except:
 	#	return ObjectContainer(header="Emission vide", message=u"Cette émission n'a aucun contenu.")
@@ -217,7 +209,7 @@ def Season(show, showId, index):
 		summary = episode['DetailsFullDescription']
 		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
 		duration = Datetime.MillisecondsFromString(episode['DetailsViewDureeEpisode'])
-		oc.add(EpisodeObject(url=url, title=title, show=show['Title'], index=ep_index, season=show['EpisodeCountBySeason'][index]['SeasonNumber'], originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=PLUGIN_ICON_DEFAULT)))
+		oc.add(EpisodeObject(url=url, title=title, show=show['Title'], index=ep_index, season=show['EpisodeCountBySeason'][index]['SeasonNumber'], originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
 	
 	if len(oc) == 0:
 		return ObjectContainer(header="Saison vide", message="Cette saison n'a aucun contenu.")
