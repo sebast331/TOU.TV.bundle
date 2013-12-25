@@ -73,8 +73,8 @@ def Caroussel():
 	
 	for show in globalCaroussel :
 		showId = show["EmissionId"]
-		showTitle = show["title"]
-		showSubTitle = show["subTitle"]
+		showTitle = show["title"].encode("utf-8")
+		showSubTitle = show["subTitle"].encode("utf-8")
 		showArt = show["imgLR"]
 		showThumb = show["imgNR"]
 		oc.add(DirectoryObject(key=Callback(Show, show=showId), title = showTitle, tagline = showSubTitle, thumb = showThumb, art = showArt))
@@ -84,7 +84,7 @@ def Caroussel():
 
 ####################################################################################################
 def AllShows():
-	oc = ObjectContainer(title2 = u"Toutes les �missions")
+	oc = ObjectContainer(title2 = u"Toutes les émissions")
 	
 	shows = GetShowList()
 	for group in shows:
