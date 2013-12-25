@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: latin-1 -*-
 
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
@@ -34,9 +34,7 @@ def Start():
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0'
 	
 	#JSON Variables
-	jsonCaroussel = json.ObjectFromURL(CAROUSSEL_SERVICE_URL)
 	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
-	globalCaroussel = jsonCaroussel["d"]
 	globalShows = jsonRepertoire["d"]["Emissions"]
 	globalGenres = jsonRepertoire["d"]["Genres"]
 	globalPays = jsonRepertoire["d"]["Pays"]
@@ -48,10 +46,10 @@ def MainMenu():
 	oc = ObjectContainer()
 
 	oc.add(DirectoryObject(key=Callback(Carousel), title="En Vedette"))
-	oc.add(DirectoryObject(key=Callback(AllShows), title="Toutes les émissions"))
+	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
 	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
 	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
-	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title="Parcourir par ordre alphabétique"))
+	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
 	
 	return oc
 
@@ -69,6 +67,17 @@ def GetShowList():
 
 def Caroussel():
 	oc = ObjectContainer(title2 ="En Vedette sur TOU.TV")
+	
+	jsonCaroussel = json.ObjectFromURL(CAROUSSEL_SERVICE_URL)
+	globalCaroussel = jsonCaroussel["d"]
+	
+	for show in globalCaroussel :
+		showId = show["EmissionId"]
+		showTitle = show["title"]
+		showSubTitle = show["subTitle"]
+		showArt = show["imgLR"]
+		showThumb = show["imgNR"]
+		oc.add(DirectoryObject(key=Callback(Show, show=showId), title = showTitle, tagline = showSubTitle, thumb = showThumb, art = showArt))
 	
 	
 	return oc
