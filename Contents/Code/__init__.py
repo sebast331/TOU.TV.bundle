@@ -26,7 +26,7 @@ def Start():
 	# Set the default ObjectContainer attributes
 	ObjectContainer.title1    = PLUGIN_TITLE
 	ObjectContainer.view_group = "InfoList"
-	#ObjectContainer.art = "" Ajouter fichier back tout.tv
+	ObjectContainer.art = R('tou-tv-for-boxee-background.png')
 	
 	# Set the default cache time
 	HTTP.CacheTime = 1800
