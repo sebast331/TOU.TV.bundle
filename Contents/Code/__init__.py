@@ -1,11 +1,4 @@
-# -*- coding: latin-1 -*-
-RE_SHOWS	= Regex('var groups = (\[\[{.+}\]\]);', Regex.DOTALL)
-RE_GENRES	= Regex('var genres = (\[.+?\]);', Regex.DOTALL)
-RE_COUNTRIES	= Regex('var countries = (\[.+?\]);', Regex.DOTALL)
-RE_SUMMARY 	= Regex('"Description":"(.+?)"')
-RE_THUMB 	= Regex('<meta property="og:image" content="(.+?)"')
-RE_SEASON 	= Regex('Saison ([0-9]+)')
-RE_EP_NUM 	= Regex('Épisode ([0-9]+)')
+# -*- coding: utf-8 -*-
 
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
@@ -13,11 +6,16 @@ PLUGIN_PREFIX   	= "/video/TOU.TV"
 PLUGIN_URL		= "http://www.tou.tv/"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 SEASON_INFO_URL		= 'http://www.tou.tv/Emisode/GetVignetteSeason?emissionId=%s&season=%s'
+REPERTOIRE_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageRepertoire"
+EMISSION_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId="
 
-MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
+globalShows = None
+globalGenres = None
+
+MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"fÃ©vrier", "english": "February"},{"french" : "mars", "english": "March"},
 	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
-	{"french" : "juillet", "english": "July"},{"french" : u"août", "english": "August"},{"french" : "septembre", "english": "September"},
-	{"french" : "octobre", "english": "October"},{"french" : "novembre", "english": "November"},{"french" : u"décembre", "english": "December"}]
+	{"french" : "juillet", "english": "July"},{"french" : u"aoÃ»t", "english": "August"},{"french" : "septembre", "english": "September"},
+	{"french" : "octobre", "english": "October"},{"french" : "novembre", "english": "November"},{"french" : u"dÃ©cembre", "english": "December"}]
 
 ####################################################################################################
 
@@ -28,20 +26,28 @@ def Start():
 	# Set the default ObjectContainer attributes
 	ObjectContainer.title1    = PLUGIN_TITLE
 	ObjectContainer.view_group = "InfoList"
+	#ObjectContainer.art = "" Ajouter fichier back tout.tv
 	
 	# Set the default cache time
 	HTTP.CacheTime = 1800
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0'
+	
+	#JSON Variables
+	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
+	globalShows = jsonRepertoire["d"]["Emissions"]
+	globalGenres = jsonRepertoire["d"]["Genres"]
+
 
 ###################################################################################################
 
 def MainMenu():
 	oc = ObjectContainer()
 
-	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
+	oc.add(DirectoryObject(key=Callback(Carousel), title="En Vedette"))
+	oc.add(DirectoryObject(key=Callback(AllShows), title="Toutes les Ã©missions"))
 	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
 	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
-	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
+	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title="Parcourir par ordre alphabÃ©tique"))
 	
 	return oc
 
@@ -58,7 +64,7 @@ def GetShowList():
 ####################################################################################################
 
 def AllShows():
-	oc = ObjectContainer(title2 = u"Toutes les émissions")
+	oc = ObjectContainer(title2 = u"Toutes les ï¿½missions")
 	
 	shows = GetShowList()
 	for group in shows:
@@ -122,7 +128,7 @@ def Country(country):
 ####################################################################################################
 
 def BrowseAlphabetically():
-	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabétique")
+	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabï¿½tique")
 	
 	for letters in ["0-9", "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWXYZ"]:
 		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
@@ -183,7 +189,7 @@ def Show(show):
 			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=season['SeasonNumber'], thumb=Resource.ContentsOfURLWithFallback(url=season_thumb)))
 			index = index + 1
 	#except:
-	#	return ObjectContainer(header="Emission vide", message=u"Cette émission n'a aucun contenu.")
+	#	return ObjectContainer(header="Emission vide", message=u"Cette ï¿½mission n'a aucun contenu.")
 		
 	return oc
 
@@ -202,7 +208,7 @@ def Season(show, showId, index):
 			ep_index = int(RE_EP_NUM.search(episode['DetailsViewSaison']).group(1))
 		except:
 			ep_index = None
-		if title.startswith(u"Épisode"):
+		if title.startswith(u"ï¿½pisode"):
 			if title.partition(':')[2] != '':
 				title = title.partition(':')[2].strip()	
 		date = TranslateDate(episode['DetailsViewDateEpisode'])
