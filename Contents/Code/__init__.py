@@ -7,6 +7,7 @@ PLUGIN_URL		= "http://www.tou.tv/"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 SEASON_INFO_URL		= 'http://www.tou.tv/Emisode/GetVignetteSeason?emissionId=%s&season=%s'
 REPERTOIRE_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageRepertoire"
+CAROUSSEL_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarrousel?playlistName=Carrousel%20Accueil"
 EMISSION_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId="
 
 globalShows = None
@@ -33,9 +34,12 @@ def Start():
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0'
 	
 	#JSON Variables
+	jsonCaroussel = json.ObjectFromURL(CAROUSSEL_SERVICE_URL)
 	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
+	globalCaroussel = jsonCaroussel["d"]
 	globalShows = jsonRepertoire["d"]["Emissions"]
 	globalGenres = jsonRepertoire["d"]["Genres"]
+	globalPays = jsonRepertoire["d"]["Pays"]
 
 
 ###################################################################################################
@@ -63,6 +67,13 @@ def GetShowList():
 
 ####################################################################################################
 
+def Caroussel():
+	oc = ObjectContainer(title2 ="En Vedette sur TOU.TV")
+	
+	
+	return oc
+
+####################################################################################################
 def AllShows():
 	oc = ObjectContainer(title2 = u"Toutes les �missions")
 	
