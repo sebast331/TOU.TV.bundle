@@ -7,11 +7,12 @@ PLUGIN_URL		= "http://www.tou.tv/"
 PLUGIN_CONTENT_URL 	= 'http://release.theplatform.com/content.select?pid=%s&format=SMIL'
 SEASON_INFO_URL		= 'http://www.tou.tv/Emisode/GetVignetteSeason?emissionId=%s&season=%s'
 REPERTOIRE_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageRepertoire"
-CAROUSSEL_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarrousel?playlistName=Carrousel%20Accueil"
+CARROUSEL_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarrousel?playlistName=Carrousel%20Accueil"
 EMISSION_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId="
 
 globalShows = None
 globalGenres = None
+globalPays = None
 
 MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
 	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
@@ -45,7 +46,7 @@ def Start():
 def MainMenu():
 	oc = ObjectContainer()
 
-	oc.add(DirectoryObject(key=Callback(Carousel), title="En Vedette"))
+	oc.add(DirectoryObject(key=Callback(Carrousel), title="En Vedette"))
 	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
 	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
 	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
@@ -65,19 +66,19 @@ def GetShowList():
 
 ####################################################################################################
 
-def Caroussel():
+def Carrousel():
 	oc = ObjectContainer(title2 ="En Vedette sur TOU.TV")
 	
-	jsonCaroussel = json.ObjectFromURL(CAROUSSEL_SERVICE_URL)
-	globalCaroussel = jsonCaroussel["d"]
+	jsonCarrousel = json.ObjectFromURL(CARROUSEL_SERVICE_URL)
+	shows = jsonCarrousel["d"]
 	
-	for show in globalCaroussel :
+	for show in shows :
 		showId = show["EmissionId"]
 		showTitle = show["title"].encode("utf-8")
 		showSubTitle = show["subTitle"].encode("utf-8")
 		showArt = show["imgLR"]
 		showThumb = show["imgNR"]
-		oc.add(DirectoryObject(key=Callback(Show, show=showId), title = showTitle, tagline = showSubTitle, thumb = showThumb, art = showArt))
+		oc.add(DirectoryObject(key=Callback(Show, showId=showId, showTitle = showTitle), title = showTitle, tagline = showSubTitle, thumb = showThumb, art = showArt))
 	
 	
 	return oc
@@ -175,13 +176,18 @@ def Letters(letters):
 
 ####################################################################################################
 
-def Show(show):
-	oc = ObjectContainer(title2 = show['Title'])
+def Show(showId, showTitle):
+
+	oc = ObjectContainer(title2 = showTitle)
 	
 	#try:
-		
-	data     = HTML.ElementFromURL(PLUGIN_URL + show["Url"])
-	raw_data = HTTP.Request(PLUGIN_URL + show["Url"]).content
+	data = json.ObjectFromURL(EMISSION_SERVICE_URL + showId)		
+	#data     = HTML.ElementFromURL(PLUGIN_URL + show["Url"])
+	#raw_data = HTTP.Request(PLUGIN_URL + show["Url"]).content
+	jsonEmission = data["d"]["Emission"]
+	jsonEpisodes = data["d"]["Episodes"]
+	
+	
 	
 	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
 		movie_title   = show['Title']
