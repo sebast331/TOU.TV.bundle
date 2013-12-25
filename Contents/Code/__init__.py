@@ -187,8 +187,30 @@ def Show(showId, showTitle):
 	jsonEmission = data["d"]["Emission"]
 	jsonEpisodes = data["d"]["Episodes"]
 	
-	
-	
+	if len(jsonEpisodes["EpisodeNumber"]) == 1 and jsonEmission["SeasonNumber"] == None :
+		
+		movieTitle = jsonEmission["Title"].encode("utf-8")
+		movieSummary = jsonEpisodes["Description"].encode("utf-8")
+		movieGenre = jsonEmission["Genre"]["Title"].encode("utf-8")
+		movieYear = int(jsonEpisodes["Year"])
+		movieTags = jsonEpisodes["Keywords"].split(",")
+		movieUrl = "http://api.radio-canada.ca/validationMedia/v1/Validation.html?appCode=thePlatform&deviceType=iphone4&connectionType=wifi&idMedia=" + jsonEpisode["PID"].encode("ascii") + "&output=json"
+		movieDuration = jsonEpisodes["Length"]
+		try:
+			movieThumb = jsonEpisodes["ImageThumbMoyenL"].encode("ascii")
+		except:
+			movieThumb = None
+		try:
+			movieArt = jsonEpisodes["ImagePromoLargeL"].encode("ascii")
+		Except:
+			movieArt = None
+			
+		oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, genres=movieGenre, year=movieYear, tags=movieTags, duration=movieDuration, thumb=movieThumb, art=movieArt))
+                
+	else:
+		#TODO: make DirObj from seasons and call seasons func 
+		
+	#old code for reference
 	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
 		movie_title   = show['Title']
 		movie_date    = Datetime.ParseDate(data.xpath('//meta[@name="dc.date.created"]')[0].get('content').split('|')[0]).date()
