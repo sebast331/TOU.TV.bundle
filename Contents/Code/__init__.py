@@ -28,8 +28,7 @@ def Start():
 	# Set the default ObjectContainer attributes
 	ObjectContainer.title1    = PLUGIN_TITLE
 	ObjectContainer.view_group = "InfoList"
-	ObjectContainer.art = R('tou-tv-for-boxee-background.png')
-	
+
 	# Set the default cache time
 	HTTP.CacheTime = 1800
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0'
@@ -55,7 +54,7 @@ def MainMenu():
 	return oc
 
 ####################################################################################################
-
+"""
 def GetShowList():
 	
 	raw_data = HTTP.Request(PLUGIN_URL + "repertoire").content
@@ -63,7 +62,7 @@ def GetShowList():
 	shows = JSON.ObjectFromString(show_data)
 	
 	return shows
-
+"""
 ####################################################################################################
 
 def Carrousel():
@@ -84,6 +83,7 @@ def Carrousel():
 	return oc
 
 ####################################################################################################
+"""
 def AllShows():
 	oc = ObjectContainer(title2 = u"Toutes les émissions")
 	
@@ -93,9 +93,9 @@ def AllShows():
 			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def BrowseByGenre():
 	oc = ObjectContainer(title2 = "Parcourir par genre")
 	
@@ -107,9 +107,9 @@ def BrowseByGenre():
 		oc.add(DirectoryObject(key=Callback(Genre, genre=genre), title=genre['Title']))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def Genre(genre):
 	oc = ObjectContainer(title2 = genre['Title'])
 	shows = GetShowList()
@@ -119,9 +119,9 @@ def Genre(genre):
 				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def BrowseByCountry():
 	oc = ObjectContainer(title2 = "Parcourir par pays")
 	
@@ -133,9 +133,9 @@ def BrowseByCountry():
 		oc.add(DirectoryObject(key=Callback(Country, country=country), title=country['CountryValue']))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def Country(country):
 	oc = ObjectContainer(title2 = country['CountryValue'])
 	shows = GetShowList()
@@ -145,9 +145,9 @@ def Country(country):
 				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def BrowseAlphabetically():
 	oc = ObjectContainer(title2 = u"Parcourir par ordre alphab�tique")
 	
@@ -155,9 +155,9 @@ def BrowseAlphabetically():
 		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def Letters(letters):
 	oc = ObjectContainer(title2 = letters)
 	shows = GetShowList()
@@ -173,7 +173,7 @@ def Letters(letters):
 		index = index + 1
 	
 	return oc
-
+"""
 ####################################################################################################
 
 def Show(showId, showTitle):
@@ -194,7 +194,10 @@ def Show(showId, showTitle):
 		movieGenre = jsonEmission["Genre"]["Title"].encode("utf-8")
 		movieYear = int(jsonEpisodes["Year"])
 		movieTags = jsonEpisodes["Keywords"].split(",")
-		movieUrl = "http://api.radio-canada.ca/validationMedia/v1/Validation.html?appCode=thePlatform&deviceType=iphone4&connectionType=wifi&idMedia=" + jsonEpisode["PID"].encode("ascii") + "&output=json"
+		movieUrl= jsonEpisodes["Url"]
+		if not movieUrl.startswith(PLUGIN_URL):
+			movieUrl = PLUGIN_URL + movieUrl.lstrip('/')
+			
 		movieDuration = jsonEpisodes["Length"]
 		try:
 			movieThumb = jsonEpisodes["ImageThumbMoyenL"].encode("ascii")
@@ -210,21 +213,10 @@ def Show(showId, showTitle):
 	else:
 		#TODO: make DirObj from seasons and call seasons func 
 		
+		
 	#old code for reference
-	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
-		movie_title   = show['Title']
-		movie_date    = Datetime.ParseDate(data.xpath('//meta[@name="dc.date.created"]')[0].get('content').split('|')[0]).date()
-		movie_summary = data.xpath('//meta[@property="og:description"]')[0].get('content')
-		movie_url = PLUGIN_URL + show['Url']
-		movie_duration = int(data.xpath('//meta[@property="video:duration"]')[0].get('content'))*1000
-		try:
-			movie_thumb = data.xpath('//meta[@property="og:image"]')[0].get('content').replace('_L.jpeg','_A.jpeg')
-		except:
-			movie_thumb = None
-			
-		oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb)))
-	else:
-		showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
+
+		#showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
 			
 		try:
 			season_thumb = RE_THUMB.findall(raw_data)[0]
@@ -242,7 +234,7 @@ def Show(showId, showTitle):
 	return oc
 
 ####################################################################################################
-
+"""
 def Season(show, showId, index):
 	oc = ObjectContainer(title1 = show["Title"], title2 = show['EpisodeCountBySeason'][index]['SeasonNumber'])
 
@@ -269,10 +261,11 @@ def Season(show, showId, index):
 		return ObjectContainer(header="Saison vide", message="Cette saison n'a aucun contenu.")
 	
 	return oc
-
+"""
 ####################################################################################################
-
+"""
 def TranslateDate(date):
 	for month in MONTHS:
 		date = date.replace(month['french'], month['english'])
 	return Datetime.ParseDate(date).date()
+"""
