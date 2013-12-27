@@ -173,6 +173,7 @@ def Show(show):
 	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + str(show["Id"]))
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
+	Log(jsonEpisodes[0]["IsUniqueEpisode"])
 	
 	if jsonEpisodes[0]["IsUniqueEpisode"] == "true" :
 		
@@ -236,7 +237,7 @@ def Season(show, showId, index):
 			#if title.partition(':')[2] != '':
 				#title = title.partition(':')[2].strip()	
 
-		date = TranslateDate(episode['DetailsViewDateEpisode'])
+		#date = TranslateDate(episode['DetailsViewDateEpisode'])
 		summary = episode['DetailsFullDescription']
 		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
 		duration = Datetime.MillisecondsFromString(episode['DetailsViewDureeEpisode'])
