@@ -231,15 +231,11 @@ def Season(show, showId, index):
 			ep_index = int(RE_EP_NUM.search(episode['DetailsViewSaison']).group(1))
 		except:
 			ep_index = None
-<<<<<<< HEAD
-		if title.startswith(u"épisode"):
-			if title.partition(':')[2] != '':
-				title = title.partition(':')[2].strip()	
-=======
+
 		#if title.startswith(u"�pisode"):
 			#if title.partition(':')[2] != '':
 				#title = title.partition(':')[2].strip()	
->>>>>>> 58294bc312e9f7ae80d72a31d078571e0c9ecd42
+
 		date = TranslateDate(episode['DetailsViewDateEpisode'])
 		summary = episode['DetailsFullDescription']
 		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
