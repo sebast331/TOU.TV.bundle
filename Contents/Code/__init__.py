@@ -173,7 +173,6 @@ def Show(show):
 	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + str(show["Id"]))
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
-	Log("est il unique :" + jsonEpisodes[0]["IsUniqueEpisode"])
 	
 	if jsonEpisodes[0]["IsUniqueEpisode"] == True :
 		
