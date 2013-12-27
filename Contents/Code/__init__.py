@@ -49,7 +49,7 @@ def MainMenu():
 
 def GetShowList():
 	
-	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
+	jsonRepertoire = JSON.ObjectFromURL(REPERTOIRE_SERVICE_URL)
 	shows = jsonRepertoire["d"]["Emissions"]
 	
 	return shows
@@ -59,7 +59,7 @@ def GetShowList():
 def Carrousel():
 	oc = ObjectContainer(title2 ="En Vedette sur TOU.TV")
 	
-	jsonCarrousel = json.ObjectFromURL(CARROUSEL_SERVICE_URL)
+	jsonCarrousel = JSON.ObjectFromURL(CARROUSEL_SERVICE_URL)
 	carrouselShows = jsonCarrousel["d"]
 	shows = GetShowList()
 	
@@ -92,7 +92,7 @@ def AllShows():
 def BrowseByGenre():
 	oc = ObjectContainer(title2 = "Parcourir par genre")
 	
-	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
+	jsonRepertoire = JSON.ObjectFromURL(REPERTOIRE_SERVICE_URL)
 	genres = jsonRepertoire["d"]["Genres"]
 
 	for genre in genres:
@@ -117,7 +117,7 @@ def Genre(genre):
 def BrowseByCountry():
 	oc = ObjectContainer(title2 = "Parcourir par pays")
 	
-	jsonRepertoire = json.ObjectFromURL(REPERTOIRE_SERVICE_URL)
+	jsonRepertoire = JSON.ObjectFromURL(REPERTOIRE_SERVICE_URL)
 	countries = jsonRepertoire["d"]["Pays"]
 	
 	
@@ -170,7 +170,7 @@ def Show(show):
 
 	oc = ObjectContainer(title2 = show["Titre"])
 	
-	dataEmission = json.ObjectFromURL(EMISSION_SERVICE_URL + show["Id"])
+	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + show["Id"])
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
 	
