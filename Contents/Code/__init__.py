@@ -86,7 +86,7 @@ def AllShows():
 	
 	shows = GetShowList()
 	for show in shows:
-			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+		oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 	
 	return oc
 
@@ -141,17 +141,17 @@ def Country(country):
 	return oc
 
 ####################################################################################################
-"""
+
 def BrowseAlphabetically():
 	oc = ObjectContainer(title2 = u"Parcourir par ordre alphab�tique")
 	
 	for letters in ["0-9", "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWXYZ"]:
 		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
-	
+		#would be cool to add thumbs with letters on R(icon)
 	return oc
-"""
+
 ####################################################################################################
-"""
+
 def Letters(letters):
 	oc = ObjectContainer(title2 = letters)
 	shows = GetShowList()
@@ -160,14 +160,13 @@ def Letters(letters):
 	index=0
 	while index < len(letters):
 		letter = letters[index]
-		for group in shows:
-			for show in group:
-				if show['GroupeId'] == letter:
-					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Title"]))
+		for show in shows:
+			if show['Titre'].startswith(letter) : 
+					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 		index = index + 1
 	
 	return oc
-"""
+	
 ####################################################################################################
 
 def Show(show):
