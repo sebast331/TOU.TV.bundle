@@ -240,7 +240,7 @@ def Season(show, showId, index):
 		summary = episode['DetailsFullDescription']
 		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
 		duration = Datetime.MillisecondsFromString(episode['DetailsViewDureeEpisode'])
-		oc.add(EpisodeObject(url=url, title=title, show=show['Titre'], index=ep_index, season=show["NombreEpisodesParSaison"][index]['Key'], originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
+		oc.add(EpisodeObject(url=url, title=title, show=show['Titre'], index=ep_index, season=show["NombreEpisodesParSaison"][index]['Key'], originally_available_at=date, summary=summary, thumb=Resource.ContentsOfURLWithFallback(url=thumb), art=thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
 	
 	if len(oc) == 0:
 		return ObjectContainer(header="Saison vide", message="Cette saison n'a aucun contenu.")
