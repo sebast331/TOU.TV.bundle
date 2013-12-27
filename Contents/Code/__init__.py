@@ -10,9 +10,6 @@ REPERTOIRE_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageR
 CARROUSEL_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarrousel?playlistName=Carrousel%20Accueil"
 EMISSION_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId="
 
-globalShows = None
-globalGenres = None
-globalPays = None
 
 MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
 	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
@@ -213,39 +210,6 @@ def Show(show):
 			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=seasonTitle, thumb=Resource.ContentsOfURLWithFallback(url=seasonThumb)))
 			index = index + 1
 
-		
-		
-	#old code for reference
-	"""
-	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
-                movie_title   = show['Title']
-                movie_date    = Datetime.ParseDate(data.xpath('//meta[@name="dc.date.created"]')[0].get('content').split('|')[0]).date()
-                movie_summary = data.xpath('//meta[@property="og:description"]')[0].get('content')
-                movie_url = PLUGIN_URL + show['Url']
-                movie_duration = int(data.xpath('//meta[@property="video:duration"]')[0].get('content'))*1000
-                try:
-                        movie_thumb = data.xpath('//meta[@property="og:image"]')[0].get('content').replace('_L.jpeg','_A.jpeg')
-                except:
-                        movie_thumb = None
-                        
-                oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb)))
-        else:
-           
-		showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
-			
-		try:
-			season_thumb = RE_THUMB.findall(raw_data)[0]
-		except:
-			season_thumb = None
-			pass
-		
-		index = 0
-		for season in show['EpisodeCountBySeason']:
-			oc.add(DirectoryObject(key=Callback(Season, show=show, showId=showId, index=index), title=season['SeasonNumber'], thumb=Resource.ContentsOfURLWithFallback(url=season_thumb)))
-			index = index + 1
-	#except:
-	#	return ObjectContainer(header="Emission vide", message=u"Cette �mission n'a aucun contenu.")
-	"""	
 	return oc
 
 ####################################################################################################
