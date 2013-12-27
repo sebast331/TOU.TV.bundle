@@ -170,7 +170,7 @@ def Show(show):
 
 	oc = ObjectContainer(title2 = show["Titre"])
 	
-	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + show["Id"])
+	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + str(show["Id"]))
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
 	
