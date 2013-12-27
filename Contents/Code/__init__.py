@@ -185,7 +185,7 @@ def Show(show):
 		if not movieUrl.startswith(PLUGIN_URL):
 			movieUrl = PLUGIN_URL + movieUrl.lstrip('/')
 			
-		movieDuration = jsonEpisodes[0]["Length"]
+		movieDuration = int(jsonEpisodes[0]["Length"])
 		try:
 			movieThumb = jsonEpisodes[0]["ImageThumbMoyenL"]
 		except:
