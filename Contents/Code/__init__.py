@@ -178,7 +178,7 @@ def Show(show):
 		
 		movieTitle = jsonEmission["Title"]
 		movieSummary = jsonEpisodes[0]["Description"]
-		movieGenre = jsonEmission["Genre"]["Title"]
+		#movieGenre = jsonEmission["Genre"]["Title"]
 		movieYear = int(jsonEpisodes[0]["Year"])
 		#movieTags = jsonEpisodes[0]["Keywords"].split(",")
 		movieUrl= jsonEpisodes[0]["Url"]
@@ -187,20 +187,20 @@ def Show(show):
 			
 		movieDuration = jsonEpisodes[0]["Length"]
 		try:
-			movieThumb = jsonEpisodes[0]["ImageThumbMoyenL"].encode("ascii")
+			movieThumb = jsonEpisodes[0]["ImageThumbMoyenL"]
 		except:
 			movieThumb = None
 		try:
-			movieArt = jsonEpisodes[0]["ImagePromoLargeL"].encode("ascii")
+			movieArt = jsonEpisodes[0]["ImagePromoLargeL"]
 		except:
 			movieArt = None
 			
-		oc.add(MovieObject(url = movieUrl, title = movieTitle, summary = movieSummary, genres = movieGenre, year = movieYear, duration = movieDuration, thumb = Resource.ContentsOfURLWithFallback(url = movieThumb), art = Resource.ContentsOfURLWithFallback(url=movieArt)))
+		oc.add(MovieObject(url = movieUrl, title = movieTitle, summary = movieSummary, year = movieYear, duration = movieDuration, thumb = Resource.ContentsOfURLWithFallback(url = movieThumb), art = Resource.ContentsOfURLWithFallback(url=movieArt)))
                 
 	else:
 		showId = show["Id"]
 		try:
-			seasonThumb = show["ImagePromoNormalK"].encode("ascii")
+			seasonThumb = show["ImagePromoNormalK"]
 		except:
 			seasonThumb = None
 					
