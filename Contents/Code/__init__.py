@@ -176,11 +176,11 @@ def Show(show):
 	
 	if jsonEpisodes[0]["IsUniqueEpisode"] == True :
 		
-		movieTitle = jsonEmission["Title"].encode("utf-8")
-		movieSummary = jsonEpisodes[0]["Description"].encode("utf-8")
-		movieGenre = jsonEmission["Genre"]["Title"].encode("utf-8")
+		movieTitle = jsonEmission["Title"]
+		movieSummary = jsonEpisodes[0]["Description"]
+		movieGenre = jsonEmission["Genre"]["Title"]
 		movieYear = int(jsonEpisodes[0]["Year"])
-		movieTags = jsonEpisodes[0]["Keywords"].split(",")
+		#movieTags = jsonEpisodes[0]["Keywords"].split(",")
 		movieUrl= jsonEpisodes[0]["Url"]
 		if not movieUrl.startswith(PLUGIN_URL):
 			movieUrl = PLUGIN_URL + movieUrl.lstrip('/')
@@ -195,7 +195,7 @@ def Show(show):
 		except:
 			movieArt = None
 			
-		oc.add(MovieObject(url = movieUrl, title = movieTitle, summary = movieSummary, genres = movieGenre, year = movieYear, tags = movieTags, duration = movieDuration, thumb = Resource.ContentsOfURLWithFallback(url = movieThumb), art = Resource.ContentsOfURLWithFallback(url=movieArt)))
+		oc.add(MovieObject(url = movieUrl, title = movieTitle, summary = movieSummary, genres = movieGenre, year = movieYear, duration = movieDuration, thumb = Resource.ContentsOfURLWithFallback(url = movieThumb), art = Resource.ContentsOfURLWithFallback(url=movieArt)))
                 
 	else:
 		showId = show["Id"]
