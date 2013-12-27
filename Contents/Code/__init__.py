@@ -77,7 +77,7 @@ def Carrousel():
 		showSubTitle = show["subTitle"].encode("utf-8")
 		showArt = show["imgLR"]
 		showThumb = show["imgNR"]
-		oc.add(DirectoryObject(key=Callback(Show, showId=showId, showTitle = showTitle), title = showTitle, tagline = showSubTitle, thumb = showThumb, art = showArt))
+		oc.add(DirectoryObject(key=Callback(Show, showId=showId, showTitle = showTitle), title = showTitle, tagline = showSubTitle, thumb = Resource.ContentsOfURLWithFallback(url=showThumb), art = Resource.ContentsOfURLWithFallback(url=showArt)))
 	
 	
 	return oc
@@ -181,13 +181,14 @@ def Show(showId, showTitle):
 	oc = ObjectContainer(title2 = showTitle)
 	
 	#try:
-	data = json.ObjectFromURL(EMISSION_SERVICE_URL + showId)		
+	
+	dataEmission = json.ObjectFromURL(EMISSION_SERVICE_URL + showId)
 	#data     = HTML.ElementFromURL(PLUGIN_URL + show["Url"])
 	#raw_data = HTTP.Request(PLUGIN_URL + show["Url"]).content
-	jsonEmission = data["d"]["Emission"]
-	jsonEpisodes = data["d"]["Episodes"]
+	jsonEmission = dataEmission["d"]["Emission"]
+	jsonEpisodes = dataEmission["d"]["Episodes"]
 	
-	if len(jsonEpisodes["EpisodeNumber"]) == 1 and jsonEmission["SeasonNumber"] == None :
+	if jsonEpisodes[0]["IsUniqueEpisode"] = True :
 		
 		movieTitle = jsonEmission["Title"].encode("utf-8")
 		movieSummary = jsonEpisodes["Description"].encode("utf-8")
@@ -208,15 +209,30 @@ def Show(showId, showTitle):
 		Except:
 			movieArt = None
 			
-		oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, genres=movieGenre, year=movieYear, tags=movieTags, duration=movieDuration, thumb=movieThumb, art=movieArt))
+		oc.add(MovieObject(url = movieUrl, title = movieTitle, summary = movieSummary, genres = movieGenre, year = movieYear, tags = movieTags, duration = movieDuration, thumb = Resource.ContentsOfURLWithFallback(url = movieThumb), art = Resource.ContentsOfURLWithFallback(url=movieArt)))
                 
 	else:
 		#TODO: make DirObj from seasons and call seasons func 
 		
+		seasonThumb = globalShows[""]["ImagePromoNormalK"]
 		
 	#old code for reference
-
-		#showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
+	"""
+	if len(show['EpisodeCountBySeason']) == 1 and  show['EpisodeCountBySeason'][0]['EpisodeCount'] == 1:
+                movie_title   = show['Title']
+                movie_date    = Datetime.ParseDate(data.xpath('//meta[@name="dc.date.created"]')[0].get('content').split('|')[0]).date()
+                movie_summary = data.xpath('//meta[@property="og:description"]')[0].get('content')
+                movie_url = PLUGIN_URL + show['Url']
+                movie_duration = int(data.xpath('//meta[@property="video:duration"]')[0].get('content'))*1000
+                try:
+                        movie_thumb = data.xpath('//meta[@property="og:image"]')[0].get('content').replace('_L.jpeg','_A.jpeg')
+                except:
+                        movie_thumb = None
+                        
+                oc.add(MovieObject(url=movie_url, title=movie_title, originally_available_at=movie_date, summary=movie_summary, duration=movie_duration, thumb=Resource.ContentsOfURLWithFallback(url=movie_thumb)))
+        else:
+           
+		showId = data.xpath('//meta[@name="ProfilingEmisodeToken"]')[0].get('content').split('.')[0]
 			
 		try:
 			season_thumb = RE_THUMB.findall(raw_data)[0]
@@ -230,7 +246,7 @@ def Show(showId, showTitle):
 			index = index + 1
 	#except:
 	#	return ObjectContainer(header="Emission vide", message=u"Cette �mission n'a aucun contenu.")
-		
+	"""	
 	return oc
 
 ####################################################################################################
