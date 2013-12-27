@@ -140,7 +140,7 @@ def Country(country):
 ####################################################################################################
 
 def BrowseAlphabetically():
-	oc = ObjectContainer(title2 = u"Parcourir par ordre alphab�tique")
+	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabétique")
 	
 	for letters in ["0-9", "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWXYZ"]:
 		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
@@ -231,7 +231,7 @@ def Season(show, showId, index):
 			ep_index = int(RE_EP_NUM.search(episode['DetailsViewSaison']).group(1))
 		except:
 			ep_index = None
-		if title.startswith(u"�pisode"):
+		if title.startswith(u"épisode"):
 			if title.partition(':')[2] != '':
 				title = title.partition(':')[2].strip()	
 		date = TranslateDate(episode['DetailsViewDateEpisode'])
