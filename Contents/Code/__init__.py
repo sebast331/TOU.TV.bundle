@@ -83,7 +83,7 @@ def AllShows():
 	
 	shows = GetShowList()
 	for show in shows:
-		oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+		oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 	
 	return oc
 
@@ -96,7 +96,7 @@ def BrowseByGenre():
 	genres = jsonRepertoire["d"]["Genres"]
 
 	for genre in genres:
-		oc.add(DirectoryObject(key=Callback(Genre, genre=genre), title=genre['Title'], art = resource.ContentsOfURLWithFallback(url=genre["ImageBackground"])))
+		oc.add(DirectoryObject(key=Callback(Genre, genre=genre), title=genre['Title'], art = Resource.ContentsOfURLWithFallback(url=genre["ImageBackground"])))
 	
 	return oc
 
@@ -107,7 +107,7 @@ def Genre(genre):
 	shows = GetShowList()
 	for show in shows:
 		if show['ParentId'] == genre['Id']:
-			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 	
 	
 	return oc
@@ -133,7 +133,7 @@ def Country(country):
 	shows = GetShowList()
 	for show in shows : 
 		if show['Pays'] == country['Value']:
-				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 	
 	return oc
 
@@ -159,7 +159,7 @@ def Letters(letters):
 		letter = letters[index]
 		for show in shows:
 			if show['Titre'].startswith(letter) : 
-					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 		index = index + 1
 	
 	return oc
