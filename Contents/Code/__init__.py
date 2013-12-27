@@ -65,8 +65,8 @@ def Carrousel():
 	
 	for carrouselShow in carrouselShows :
 		showId = carrouselShow["EmissionId"]
-		showTitle = carrouselShow["title"].encode("utf-8")
-		showSubTitle = carrouselShow["subTitle"].encode("utf-8")
+		showTitle = carrouselShow["title"]
+		showSubTitle = carrouselShow["subTitle"]
 		showArt = carrouselShow["imgLR"]
 		showThumb = carrouselShow["imgNR"]
 		for show in shows :
