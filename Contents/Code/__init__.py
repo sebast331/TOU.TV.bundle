@@ -173,9 +173,9 @@ def Show(show):
 	dataEmission = JSON.ObjectFromURL(EMISSION_SERVICE_URL + str(show["Id"]))
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
-	#Log(jsonEpisodes[0]["IsUniqueEpisode"])
+	Log("est il unique :" + jsonEpisodes[0]["IsUniqueEpisode"])
 	
-	if jsonEpisodes[0]["IsUniqueEpisode"] == "True" :
+	if jsonEpisodes[0]["IsUniqueEpisode"] == True :
 		
 		movieTitle = jsonEmission["Title"].encode("utf-8")
 		movieSummary = jsonEpisodes[0]["Description"].encode("utf-8")
