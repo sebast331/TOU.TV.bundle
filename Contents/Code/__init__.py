@@ -174,7 +174,7 @@ def Show(show):
 	jsonEmission = dataEmission["d"]["Emission"]
 	jsonEpisodes = dataEmission["d"]["Episodes"]
 	
-	if jsonEpisodes[0]["IsUniqueEpisode"] = True :
+	if jsonEpisodes[0]["IsUniqueEpisode"] = "true" :
 		
 		movieTitle = jsonEmission["Title"].encode("utf-8")
 		movieSummary = jsonEpisodes[0]["Description"].encode("utf-8")
