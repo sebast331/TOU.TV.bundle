@@ -19,12 +19,11 @@ MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", 
 ####################################################################################################
 
 def Start():
+	#Set handler
 	Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, PLUGIN_TITLE)
-	Plugin.AddViewGroup("InfoList", viewMode = "InfoList", mediaType = "items")
 	
 	# Set the default ObjectContainer attributes
 	ObjectContainer.title1    = PLUGIN_TITLE
-	ObjectContainer.view_group = "InfoList"
 
 	# Set the default cache time
 	HTTP.CacheTime = 1800
@@ -55,6 +54,7 @@ def GetShowList():
 	return shows
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Carrousel')
 
 def Carrousel():
 	oc = ObjectContainer(title2 ="En Vedette sur TOU.TV")
@@ -77,6 +77,7 @@ def Carrousel():
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/AllShows')
 
 def AllShows():
 	oc = ObjectContainer(title2 = u"Toutes les émissions")
@@ -92,6 +93,7 @@ def AllShows():
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/BrowseGenre')
 
 def BrowseByGenre():
 	oc = ObjectContainer(title2 = "Parcourir par genre")
@@ -105,6 +107,7 @@ def BrowseByGenre():
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Genre')
 
 def Genre(genre):
 	oc = ObjectContainer(title2 = genre['Title'])
@@ -121,6 +124,7 @@ def Genre(genre):
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/BrowseCountry')
 
 def BrowseByCountry():
 	oc = ObjectContainer(title2 = "Parcourir par pays")
@@ -135,6 +139,7 @@ def BrowseByCountry():
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Country')
 
 def Country(country):
 	oc = ObjectContainer(title2 = country['Value'])
@@ -150,6 +155,7 @@ def Country(country):
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/BrowseAlpha')
 
 def BrowseAlphabetically():
 	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabétique")
@@ -160,6 +166,7 @@ def BrowseAlphabetically():
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Letters')
 
 def Letters(letters):
 	oc = ObjectContainer(title2 = letters)
@@ -181,6 +188,7 @@ def Letters(letters):
 	return oc
 	
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Show')
 
 def Show(show):
 
@@ -229,6 +237,7 @@ def Show(show):
 	return oc
 
 ####################################################################################################
+@route(PLUGIN_PREFIX + '/Season')
 
 def Season(show, showId, index):
 	seasonTitle = "Saison " + str(show["NombreEpisodesParSaison"][index]['Key'])
