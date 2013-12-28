@@ -38,10 +38,10 @@ def MainMenu():
 	oc = ObjectContainer()
 
 	oc.add(DirectoryObject(key=Callback(Carrousel), title="En Vedette"))
-	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
+	oc.add(DirectoryObject(key=Callback(AllShows), title="Toutes les émissions"))
 	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
 	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
-	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
+	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title="Parcourir par ordre alphabétique"))
 	
 	return oc
 
@@ -83,7 +83,11 @@ def AllShows():
 	
 	shows = GetShowList()
 	for show in shows:
-		oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+		try: 
+			thumb = show["ImagePromoNormalK"]
+		except:
+			thumb = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])
+		oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = thumb, art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 	
 	return oc
 
@@ -107,8 +111,12 @@ def Genre(genre):
 	shows = GetShowList()
 	for show in shows:
 		if show['ParentId'] == genre['Id']:
-			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
-	
+			try: 
+				thumb = show["ImagePromoNormalK"]
+			except:
+				thumb = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])
+			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = thumb, art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+
 	
 	return oc
 
@@ -133,8 +141,12 @@ def Country(country):
 	shows = GetShowList()
 	for show in shows : 
 		if show['Pays'] == country['Value']:
-				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
-	
+			try: 
+				thumb = show["ImagePromoNormalK"]
+			except:
+				thumb = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])
+			oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = thumb, art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+
 	return oc
 
 ####################################################################################################
@@ -159,7 +171,11 @@ def Letters(letters):
 		letter = letters[index]
 		for show in shows:
 			if show['Titre'].startswith(letter) : 
-					oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = Resource.ContentsOfURLWithFallback(url=show["ImagePromoNormalK"]), art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
+				try: 
+					thumb = show["ImagePromoNormalK"]
+				except:
+					thumb = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])
+				oc.add(DirectoryObject(key=Callback(Show, show=show), title = show["Titre"], thumb = thumb, art = Resource.ContentsOfURLWithFallback(url=show["ImageJorC"])))
 		index = index + 1
 	
 	return oc
