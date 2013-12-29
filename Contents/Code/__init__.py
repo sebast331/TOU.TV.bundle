@@ -191,7 +191,7 @@ def Letters(letters):
 	return oc
 	
 ####################################################################################################
-@route(PLUGIN_PREFIX + '/Show')
+@route(PLUGIN_PREFIX + '/Show', show=list)
 
 def Show(show):
 
@@ -240,7 +240,7 @@ def Show(show):
 	return oc
 
 ####################################################################################################
-@route(PLUGIN_PREFIX + '/Season')
+@route(PLUGIN_PREFIX + '/Season', show=list, index=int)
 
 def Season(show, showId, index):
 	seasonTitle = "Saison " + str(show["NombreEpisodesParSaison"][index]['Key'])
