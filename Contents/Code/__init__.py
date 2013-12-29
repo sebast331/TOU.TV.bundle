@@ -1,7 +1,7 @@
 # -*- coding: latin-1 -*-
 
 #Regex
-RE_EP_NUM         = Regex('Épisode ([0-9]+)')
+RE_EP_NUM         = Regex('ï¿½pisode ([0-9]+)')
 
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
@@ -14,10 +14,10 @@ CARROUSEL_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarrou
 EMISSION_SERVICE_URL = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId="
 
 
-MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"février", "english": "February"},{"french" : "mars", "english": "March"},
+MONTHS = [{"french" : "janvier", "english": "January"},{"french" : u"fï¿½vrier", "english": "February"},{"french" : "mars", "english": "March"},
 	{"french" : "avril", "english": "April"},{"french" : "mai", "english": "May"},{"french" : "juin", "english": "June"},
-	{"french" : "juillet", "english": "July"},{"french" : u"août", "english": "August"},{"french" : "septembre", "english": "September"},
-	{"french" : "octobre", "english": "October"},{"french" : "novembre", "english": "November"},{"french" : u"décembre", "english": "December"}]
+	{"french" : "juillet", "english": "July"},{"french" : u"aoï¿½t", "english": "August"},{"french" : "septembre", "english": "September"},
+	{"french" : "octobre", "english": "October"},{"french" : "novembre", "english": "November"},{"french" : u"dï¿½cembre", "english": "December"}]
 
 ####################################################################################################
 
@@ -40,10 +40,10 @@ def MainMenu():
 	oc = ObjectContainer()
 
 	oc.add(DirectoryObject(key=Callback(Carrousel), title="En Vedette"))
-        oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
+        oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les ï¿½missions"))
         oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
         oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
-        oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
+        oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabï¿½tique"))
 	
 	return oc
 
@@ -83,7 +83,7 @@ def Carrousel():
 @route(PLUGIN_PREFIX + '/AllShows')
 
 def AllShows():
-	oc = ObjectContainer(title2 = u"Toutes les émissions")
+	oc = ObjectContainer(title2 = u"Toutes les ï¿½missions")
 	
 	shows = GetShowList()
 	for show in shows:
@@ -161,7 +161,7 @@ def Country(country):
 @route(PLUGIN_PREFIX + '/BrowseAlpha')
 
 def BrowseAlphabetically():
-	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabétique")
+	oc = ObjectContainer(title2 = u"Parcourir par ordre alphabï¿½tique")
 	
 	for letters in ["0-9", "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWXYZ"]:
 		oc.add(DirectoryObject(key=Callback(Letters, letters=letters), title=letters))
@@ -260,11 +260,11 @@ def Season(show, showId, index):
 		except:
 			ep_index = None
 
-		#if title.startswith(u"épisode"):
+		#if title.startswith(u"ï¿½pisode"):
 			#if title.partition(':')[2] != '':
 				#title = title.partition(':')[2].strip()	
 
-		#date = TranslateDate(episode['DetailsViewDateEpisode'])
+		date = TranslateDate(episode['DetailsViewDateEpisode'])
 		summary = episode['DetailsFullDescription']
 		thumb = episode['DetailsViewImageUrlL'].replace('_L.jpeg','_A.jpeg')
 		duration = Datetime.MillisecondsFromString(episode['DetailsViewDureeEpisode'])
