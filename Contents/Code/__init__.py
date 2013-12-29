@@ -74,7 +74,7 @@ def Carrousel():
 		showThumb = carrouselShow["imgNR"]
 		for show in shows :
 			if show["Id"] == showId :
-				oc.add(DirectoryObject(key=Callback(Show, show=show), title = showTitle, tagline = showSubTitle, thumb = Resource.ContentsOfURLWithFallback(url=showThumb), art = Resource.ContentsOfURLWithFallback(url=showArt)))
+				oc.add(DirectoryObject(key=Callback(Show, show=show), title = showTitle, tagline = showSubTitle, summary = showSubTitle, thumb = Resource.ContentsOfURLWithFallback(url=showThumb), art = Resource.ContentsOfURLWithFallback(url=showArt)))
 	
 	
 	return oc
