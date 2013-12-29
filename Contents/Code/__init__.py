@@ -40,10 +40,10 @@ def MainMenu():
 	oc = ObjectContainer()
 
 	oc.add(DirectoryObject(key=Callback(Carrousel), title="En Vedette"))
-	oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
-	oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
-	oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
-	oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
+        oc.add(DirectoryObject(key=Callback(AllShows), title=u"Toutes les émissions"))
+        oc.add(DirectoryObject(key=Callback(BrowseByGenre), title="Parcourir par genre"))
+        oc.add(DirectoryObject(key=Callback(BrowseByCountry), title="Parcourir par pays"))
+        oc.add(DirectoryObject(key=Callback(BrowseAlphabetically), title=u"Parcourir par ordre alphabétique"))
 	
 	return oc
 
