@@ -1,5 +1,8 @@
 # -*- coding: latin-1 -*-
 
+#Regex
+RE_EP_NUM         = Regex('Épisode ([0-9]+)')
+
 # Plugin parameters
 PLUGIN_TITLE		= "TOU.TV"
 PLUGIN_PREFIX   	= "/video/TOU.TV"
