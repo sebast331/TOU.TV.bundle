@@ -110,7 +110,7 @@ def BrowseByGenre():
 	return oc
 
 ####################################################################################################
-@route(PLUGIN_PREFIX + '/Genre')
+@route(PLUGIN_PREFIX + '/Genre', genre=list)
 
 def Genre(genre):
 	oc = ObjectContainer(title2 = genre['Title'])
@@ -142,7 +142,7 @@ def BrowseByCountry():
 	return oc
 
 ####################################################################################################
-@route(PLUGIN_PREFIX + '/Country')
+@route(PLUGIN_PREFIX + '/Country', country=list)
 
 def Country(country):
 	oc = ObjectContainer(title2 = country['Value'])
