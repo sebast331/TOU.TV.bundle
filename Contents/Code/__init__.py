@@ -15,18 +15,18 @@ EMISSION_SERVICE_URL    = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPage
 
 
 MONTHS = [
-        {"french" : "janvier"   , "english": "January"}   ,
-        {"french" : "février"   , "english": "February"}  ,
-        {"french" : "mars"      , "english": "March"}     ,
-        {"french" : "avril"     , "english": "April"}     ,
-        {"french" : "mai"       , "english": "May"}       ,
-        {"french" : "juin"      , "english": "June"}      ,
-        {"french" : "juillet"   , "english": "July"}      ,
-        {"french" : "août"      , "english": "August"}    ,
-        {"french" : "septembre" , "english": "September"} ,
-        {"french" : "octobre"   , "english": "October"}   ,
-        {"french" : "novembre"  , "english": "November"}  ,
-        {"french" : "décembre"  , "english": "December"}]
+        {"french" :  "janvier"   , "english": "January"}   ,
+        {"french" : u"février"   , "english": "February"}  ,
+        {"french" :  "mars"      , "english": "March"}     ,
+        {"french" :  "avril"     , "english": "April"}     ,
+        {"french" :  "mai"       , "english": "May"}       ,
+        {"french" :  "juin"      , "english": "June"}      ,
+        {"french" :  "juillet"   , "english": "July"}      ,
+        {"french" : u"août"      , "english": "August"}    ,
+        {"french" :  "septembre" , "english": "September"} ,
+        {"french" :  "octobre"   , "english": "October"}   ,
+        {"french" :  "novembre"  , "english": "November"}  ,
+        {"french" : u"décembre"  , "english": "December"}]
 
 ####################################################################################################
 
@@ -48,11 +48,11 @@ def Start():
 def MainMenu():
     oc = ObjectContainer()
 
-    oc.add(DirectoryObject(key = Callback(Carrousel)            , title = "En Vedette"))
-    oc.add(DirectoryObject(key = Callback(AllShows)             , title = "Toutes les émissions"))
-    oc.add(DirectoryObject(key = Callback(BrowseByGenre)        , title = "Parcourir par genre"))
-    oc.add(DirectoryObject(key = Callback(BrowseByCountry)      , title = "Parcourir par pays"))
-    oc.add(DirectoryObject(key = Callback(BrowseAlphabetically) , title = "Parcourir par ordre alphabétique"))
+    oc.add(DirectoryObject(key = Callback(Carrousel)            , title =  "En Vedette"))
+    oc.add(DirectoryObject(key = Callback(AllShows)             , title = u"Toutes les émissions"))
+    oc.add(DirectoryObject(key = Callback(BrowseByGenre)        , title =  "Parcourir par genre"))
+    oc.add(DirectoryObject(key = Callback(BrowseByCountry)      , title =  "Parcourir par pays"))
+    oc.add(DirectoryObject(key = Callback(BrowseAlphabetically) , title = u"Parcourir par ordre alphabétique"))
 
     return oc
 
@@ -309,7 +309,7 @@ def Season(show, showId, index):
         except:
             ep_index = None
 
-        #if title.startswith("épisode"):
+        #if title.startswith(u"épisode"):
             #if title.partition(':')[2] != '':
                 #title = title.partition(':')[2].strip()
 
