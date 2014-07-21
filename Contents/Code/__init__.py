@@ -11,7 +11,7 @@ URL_CARROUSEL           = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarr
 URL_ALL_SHOWS           = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageRepertoire"
 URL_SHOW                = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId=%s"
 URL_ACCUEIL				= "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageAccueil"
-URL_EMISSION_PLAY		= "http://api.radio-canada.ca/validationMedia/v1/Validation.html?appCode=thePlatform&deviceType=ipad&connectionType=wifi&idMedia=%s&output=json"
+URL_EMISSION_PLAY		= "http://api.radio-canada.ca/validationMedia/v1/Validation.html?appCode=thePlatform&deviceType=ipad&connectionType=wifi&idMedia=%s&output=json&emissionId=%s"
 
 # make sure to replace artwork with what you want
 # these filenames reference the example files in
@@ -121,7 +121,7 @@ def EpisodesMenu(showId, season=-1):
 
     for show in jsonEpisodes:
         if (show['SeasonNumber'] == season or season == -1):
-            movieUrl = URL_EMISSION_PLAY % show['PID']
+            movieUrl = URL_EMISSION_PLAY % (show['PID'], jsonEmission['Id'])
             movieTitle = show['Title']
             movieSummary = show['Description']
             movieYear = int(show['Year'])
@@ -150,12 +150,13 @@ def EpisodesMenu(showId, season=-1):
 @route(PLUGIN_PREFIX + '/SelectionsMenu')
 def SelectionsMenu(sectionName, sectionTitle):
     jsonShows = JSON.ObjectFromURL(URL_ACCUEIL)
+    jsonEmission = jsonShows['d']['Emission']
     jsonEpisodes = jsonShows['d'][sectionName.split('/')[0]]['Episodes']
 
     oc = ObjectContainer(title2 = unicode(sectionTitle))
 
     for show in jsonEpisodes:
-    	movieUrl = URL_EMISSION_PLAY % show['PID']
+    	movieUrl = URL_EMISSION_PLAY % (show['PID'], jsonEmission['Id'])
         movieTitle = show['Title']
         movieSummary = show['Description']
         movieYear = int(show['Year'])
