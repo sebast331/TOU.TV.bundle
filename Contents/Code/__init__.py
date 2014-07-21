@@ -11,6 +11,7 @@ URL_CARROUSEL           = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetCarr
 URL_ALL_SHOWS           = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageRepertoire"
 URL_SHOW                = "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageEmission?emissionId=%s"
 URL_ACCUEIL				= "http://api.tou.tv/v1/toutvapiservice.svc/json/GetPageAccueil"
+URL_EMISSION_PLAY		= "http://api.radio-canada.ca/validationMedia/v1/Validation.html?appCode=thePlatform&deviceType=ipad&connectionType=wifi&idMedia=%s&output=json"
 
 # make sure to replace artwork with what you want
 # these filenames reference the example files in
@@ -42,23 +43,29 @@ def MainMenu():
     oc = ObjectContainer()
 
     # Main Menu
-    oc.add(DirectoryObject(key=Callback(CarrouselMenu), title=u"En vedette"))
+    #oc.add(DirectoryObject(key=Callback(CarrouselMenu), title=u"En vedette"))
     oc.add(DirectoryObject(key=Callback(ListShowsMenu, title=u"Toutes les émissions"), title=u"Toutes les émissions"))
     oc.add(DirectoryObject(key=Callback(SelectionsMenu, sectionName="SelectionADecouvrir", sectionTitle=u"Sélections à découvrir"), title=u"Sélections à découvrir"))
     oc.add(DirectoryObject(key=Callback(GenresListMenu), title=u"Parcourir par genre"))
     oc.add(DirectoryObject(key=Callback(LetterListMenu), title=u"Parcourir par ordre alphabétique"))
-    # Search
-    oc.add(InputDirectoryObject(key=Callback(ListShowsMenu, title="Resultats de recherche: "), title="Search Title", summary="The description of what you are searching for..."))
 
+    # TESTING
+    #oc.add(MovieObject(url=json['url'], rating_key="movieId", title="ANDROID OK 1!", summary="movieSummary", year=2012))
+    #oc.add(MovieObject(url=json2['url'], rating_key="movieId", title="ANDROID OK 2!", summary="movieSummary", year=2012))
+    #oc.add(MovieObject(url=json2['url'], rating_key="movieId", title="Work in progress for Chrome", summary="movieSummary", year=2012))
+
+    # Search
+    oc.add(InputDirectoryObject(key=Callback(ListShowsMenu, title=u"Résultats de recherche: "), title="Rechercher", summary=u"Rechercher une émission"))
  
     return oc
+
 
 ######################################################
 #	Displays the list of shows that matches the conditions
 @route(PLUGIN_PREFIX + '/ListShowsMenu')
 def ListShowsMenu(title, genre=None, titleRegex=None, query=""):
 
-    oc = ObjectContainer(title2 = title + query)
+    oc = ObjectContainer(title2 = unicode(title + query))
 
     # Query is the result of a search and should be the regex
     if (query != ""):
@@ -78,9 +85,8 @@ def ListShowsMenu(title, genre=None, titleRegex=None, query=""):
     return oc
 
 ######################################################
-#   Displays a list of season of 
+#   Displays a list of season or the show if the only one
 @route(PLUGIN_PREFIX + '/ShowMenu', show=list)
-
 def ShowMenu(show):
 
     oc = ObjectContainer(title2 = show['Titre'])
@@ -103,7 +109,7 @@ def ShowMenu(show):
 
 
 ##########################################
-#   Displays the list of shows
+#   Displays the list of episodes 
 ##########################################
 @route(PLUGIN_PREFIX + '/EpisodesMenu', showId=str, season=int)
 def EpisodesMenu(showId, season=-1):
@@ -115,10 +121,10 @@ def EpisodesMenu(showId, season=-1):
 
     for show in jsonEpisodes:
         if (show['SeasonNumber'] == season or season == -1):
+            movieUrl = URL_EMISSION_PLAY % show['PID']
             movieTitle = show['Title']
             movieSummary = show['Description']
             movieYear = int(show['Year'])
-            movieUrl = show['Url'].lstrip('/')
             movieDuration = int(show['Length'])
             movieId = show['TitleID']
             try:
@@ -131,7 +137,8 @@ def EpisodesMenu(showId, season=-1):
                 movieArt = None
 
             ### TODO: PLAY VIDEO
-            oc.add(MovieObject(key=movieId, rating_key=movieId, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
+            Log(" --> MovieURL: %s" % movieUrl)
+            oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
 
     return oc
 
@@ -148,10 +155,10 @@ def SelectionsMenu(sectionName, sectionTitle):
     oc = ObjectContainer(title2 = unicode(sectionTitle))
 
     for show in jsonEpisodes:
+    	movieUrl = URL_EMISSION_PLAY % show['PID']
         movieTitle = show['Title']
         movieSummary = show['Description']
         movieYear = int(show['Year'])
-        movieUrl = show['Url'].lstrip('/')
         movieDuration = int(show['Length'])
         movieId = show['TitleID']
         try:
@@ -164,7 +171,7 @@ def SelectionsMenu(sectionName, sectionTitle):
             movieArt = None
 
         ### TODO: PLAY VIDEO
-        oc.add(MovieObject(key=movieId, rating_key=movieId, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
+        oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
 
     return oc
 
@@ -192,6 +199,7 @@ def CarrouselMenu():
 	oc = ObjectContainer(title2 = u"En vedette")
 
 	for show in jsonCarrousel:
+		### TODO: PLAY VIDEO
 		oc.add(MovieObject(key=show['EmissionId'], rating_key=show['EmissionId'], title=show['title'], summary=show['subTitle'], thumb=Resource.ContentsOfURLWithFallback(url=show['imgNR']), art=Resource.ContentsOfURLWithFallback(url=show['imgLR'])))
 
 	return oc
