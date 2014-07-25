@@ -45,7 +45,7 @@ def MainMenu():
     # Main Menu
     #oc.add(DirectoryObject(key=Callback(CarrouselMenu), title=u"En vedette"))
     oc.add(DirectoryObject(key=Callback(ListShowsMenu, title=u"Toutes les émissions"), title=u"Toutes les émissions"))
-    oc.add(DirectoryObject(key=Callback(SelectionsMenu, sectionName="SelectionADecouvrir", sectionTitle=u"Sélections à découvrir"), title=u"Sélections à découvrir"))
+    #oc.add(DirectoryObject(key=Callback(SelectionsMenu, sectionName="SelectionADecouvrir", sectionTitle=u"Sélections à découvrir"), title=u"Sélections à découvrir"))
     oc.add(DirectoryObject(key=Callback(GenresListMenu), title=u"Parcourir par genre"))
     oc.add(DirectoryObject(key=Callback(LetterListMenu), title=u"Parcourir par ordre alphabétique"))
 
@@ -79,8 +79,8 @@ def ListShowsMenu(title, genre=None, titleRegex=None, query=""):
     		and (titleRegex == None or re.compile(titleRegex, re.IGNORECASE).search(show['Titre']))
     		):
     		# Display the show that matches the conditions
-	        thumb = Resource.ContentsOfURLWithFallback(url=show['ImageJorC'])
-	        oc.add(DirectoryObject(key=Callback(ShowMenu, show=show), title = show['Titre'], thumb = thumb, art = thumb))
+            thumb = Resource.ContentsOfURLWithFallback(url=show['ImageJorC'])
+            oc.add(TVShowObject(key=Callback(ShowMenu, show=show), rating_key=show['Id'], source_title=PLUGIN_TITLE, title=show['Titre'], thumb=thumb, art=thumb, episode_count=show['NombreEpisodes']))
 
     return oc
 
@@ -102,9 +102,11 @@ def ShowMenu(show):
     if jsonEpisodes[0]['IsUniqueEpisode'] == True:
         return EpisodesMenu(showId=show['Id'], season=jsonEpisodes[0]['SeasonNumber'])
     else:
+        thumb = Resource.ContentsOfURLWithFallback(url=show['ImageJorC'])
         for season in show['NombreEpisodesParSaison']:
             seasonTitle = 'Saison %s (%s episodes)' % (str(season['Key']), str(season['Value']))
-            oc.add(DirectoryObject(key=Callback(EpisodesMenu, showId=show['Id'], season=season['Key']), title=seasonTitle))
+            oc.add(SeasonObject(key=Callback(EpisodesMenu, showId=show['Id'], season=season['Key']), rating_key=str(show['Id']) + str(season['Key']), title="Saison %s" % str(season['Key']), index=season['Key'], show=show['Titre'], source_title=PLUGIN_NAME, thumb=thumb, art=thumb))
+            #oc.add(DirectoryObject(key=Callback(EpisodesMenu, showId=show['Id'], season=season['Key']), title=seasonTitle))
         return oc
 
 
@@ -138,7 +140,8 @@ def EpisodesMenu(showId, season=-1):
 
             ### TODO: PLAY VIDEO
             Log(" --> MovieURL: %s" % movieUrl)
-            oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
+            oc.add(EpisodeObject(url=movieUrl, title=movieTitle, summary=movieSummary, show=jsonEmission['Title'], season=show['SeasonNumber'], thumb=movieThumb, art=movieArt))
+            #oc.add(MovieObject(url=movieUrl, title=movieTitle, summary=movieSummary, year=movieYear, duration=movieDuration, thumb=Resource.ContentsOfURLWithFallback(url=movieThumb), art=Resource.ContentsOfURLWithFallback(url=movieArt)))
 
     return oc
 
